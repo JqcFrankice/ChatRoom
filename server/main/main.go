@@ -8,33 +8,45 @@ import (
 	"time"
 )
 
-func main()  {
-
-	db.InitPool("localhost:6379", 16, 0, 300*time.Second)
+func main() {
+	// 初始化数据库连接池
+	db.InitPool("127.0.0.1:6379", 16, 0, 300*time.Second)
+	// 初始化用户数据访问对象
 	model.InitUserDao()
+
+	// 输出服务器监听信息
 	fmt.Println("服务器在8889监听")
-	listen, err :=net.Listen("tcp", "0.0.0.0:8889")
+
+	// 监听端口
+	listen, err := net.Listen("tcp", "0.0.0.0:8889")
 	defer listen.Close()
-	if err!= nil {
+	if err != nil {
+		// 监听失败处理
 		fmt.Println("监听失败 err = ", err)
 		return
 	}
-	for  {
+
+	// 循环等待客户端连接
+	for {
 		fmt.Println("等待客户端还链接服务器 。。。。")
+		// 接受客户端连接
 		conn, err := listen.Accept()
 		if err != nil {
+			// 客户端连接失败处理
 			fmt.Println("listen.Accept 链接失败 err = ", err)
 		}
+		// 启动协程处理客户端连接
 		go process(conn)
 	}
 }
 
 func process(conn net.Conn) {
+	// 延迟关闭连接
 	defer conn.Close()
-	//读取信息
+	// 输出连接成功信息
 	fmt.Println("链接成功")
 
-/*	for  {
+	/*	for  {
 		mes, err := readPkg(conn)
 		if err != nil {
 			fmt.Println("接受buf err=", err)
@@ -46,12 +58,14 @@ func process(conn net.Conn) {
 			fmt.Println("返回消息失败")
 		}
 	}*/
-
+	// 创建处理结构体
 	po := &Process{
 		Conn: conn,
 	}
+	// 处理所有消息
 	po.processAll()
 }
+
 /*
 func readPkg(conn net.Conn) (mes message.Message, err error)  {
 	buf := make([]byte, 8096)
@@ -85,7 +99,7 @@ func readPkg(conn net.Conn) (mes message.Message, err error)  {
 
 		default:
 			fmt.Println("消息类型不存在 无法处理")
-	
+
 	}
 	return
 }*/
@@ -151,19 +165,3 @@ func serverProcessLogin(conn net.Conn, mes *message.Message) (err error) {
 
 	return
 }*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
